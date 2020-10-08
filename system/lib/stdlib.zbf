@@ -1,0 +1,10 @@
+new :: global := name -> args -> {
+  obj := malloc(sizeLookupTable(name))
+  function := functionLookupTable(name)
+  <- function.obj.name(args)
+}
+
+functionLookupTable # global literal -> pointer -> literal -> * -> *
+sizeLookupTable # global literal -> number
+malloc # global number -> pointer
+printf # global string -> tuple -> IO

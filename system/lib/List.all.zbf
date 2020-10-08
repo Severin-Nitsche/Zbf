@@ -1,0 +1,26 @@
+List a -> Cons a, Nil :: {
+
+  append :: global a -> List a
+  prepend :: global a -> List a
+  concat :: global List a -> List a
+  empty :: global () -> List := new Nil()
+
+  List a <- Cons a -> :: global {
+    value :: a
+    tail :: List a
+    Cons :: object (this,value,tail) {
+      this.value := value
+      this.tail := tail
+    }
+    Cons :: global value := new Cons(value,new Nil())
+    append :: global value := new Cons(value,this.tail.append(value))
+    prepend :: global value := new Cons(value,this)
+    concat :: global list := new Cons(value,this.tail.concat(list))
+  }
+  List a <- Nil -> :: global {
+    {}
+    append :: global value := new Cons(value)
+    prepend :: global value := new Cons(value)
+    concat :: global list := list
+  }
+}
