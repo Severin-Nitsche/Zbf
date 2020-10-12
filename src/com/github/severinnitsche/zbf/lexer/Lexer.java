@@ -6,10 +6,6 @@ import com.github.severinnitsche.function.algebra.type.Either;
 import com.github.severinnitsche.function.algebra.type.List;
 import com.github.severinnitsche.function.algebra.util.Strings;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 public interface Lexer {
   static Either<Throwable,List<ZbfToken>> lex(String s) {
     return Strings.
