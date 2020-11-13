@@ -6,8 +6,11 @@ import com.github.severinnitsche.function.algebra.type.Either;
 import com.github.severinnitsche.function.algebra.type.List;
 import com.github.severinnitsche.function.algebra.util.Strings;
 
+import static java.lang.Character.isAlphabetic;
+import static java.lang.Character.isWhitespace;
+
 public interface Lexer {
-  static Either<Throwable,List<ZbfToken>> lex(String s) {
+  static Either<Throwable, List<ZbfToken>> lex(String s) {
     return Strings.
         reduce(s,
             (either, c) -> either.flatmap(
@@ -16,16 +19,19 @@ public interface Lexer {
             , Either.from(new CharAccumulator<>(
                 CharList.empty(),
                 List.empty(),
-                list -> Either.from(ZbfToken.of(list.reduce(StringBuilder::append, new StringBuilder()).toString())),
-                (list, c) -> Character.isAlphabetic(c) || Character.isWhitespace(c) ||
+                list -> Either.from(ZbfToken.of(list.reduce((str, c) -> str.length() > 0 && str.charAt(0) == '\n' ? str : str.append(c), new StringBuilder()).toString())),
+                (list, c) -> isAlphabetic(c) || isWhitespace(c) ||
                     c == '.' || c == '(' || c == ')' || c == '-' || c == '>' || c == ':' || c == '{' || c == '}' ||
                     c == '=' || c == '<' || c == ',',
-                (list, c) -> c == '<' || c == '(' || c == ')' || c == '{' || c == '}' || c == '\n' || c == ',' ||
+                (list, c) -> c == '<' || c == '(' || c == ')' || c == '{' || c == '}' || c == ',' ||
                     (c == ':' && list instanceof CharList.Cons cons && cons.head() != ':') ||
                     (c == '=' && list instanceof CharList.Cons cons3 && cons3.head() != ':') ||
-                    (c == '-' && list instanceof CharList.Cons cons2 && cons2.head() != '<'),
-                (list, c) -> c == '.' || Character.isWhitespace(c),
-                (list, c) -> c == '>' || c == '(' || c == ')' || c == '{' || c == '}' || c == '=' || c == '\n' ||
+                    (c == '-' && list instanceof CharList.Cons cons2 && cons2.head() != '<') ||
+                    (c == '\n' && list instanceof CharList.Nil) ||
+                    (c == '\n' && list instanceof CharList.Cons cons4 && cons4.head() != '\n'),
+                (list, c) -> c == '.' || (isWhitespace(c) && c != '\n') ||
+                    (c != '\n' && list instanceof CharList.Cons cons && cons.head() == '\n'),
+                (list, c) -> c == '>' || c == '(' || c == ')' || c == '{' || c == '}' || c == '=' ||
                     c == ',' ||
                     (c == ':' && list instanceof CharList.Cons cons && cons.head() == ':') ||
                     (c == '-' && list instanceof CharList.Cons cons2 && cons2.head() == '<')
@@ -39,6 +45,9 @@ public interface Lexer {
     System.out.println(lex(
         """
                 List a -> Cons a, Nil :: {
+                \r
+                \r
+                
                 
                   append :: global a -> List a
                   prepend :: global a -> List a

@@ -8,7 +8,35 @@ public interface AST {
     record Class(List<AST> statics, Expression.Declaration classDef, Expression.Block body) implements AST {
     }
 
-    record Type(Literal type, List<Literal> arguments) implements AST {
+    sealed interface DataType extends AST permits DataType.TypeCons, DataType.Type, DataType.Complex {
+      record TypeCons(Type base, Type type) implements DataType {
+      }
+
+      sealed interface Type extends DataType permits Type.ConsType, Type.Void, Type.Tuple, Type.Function, Type.Method {
+        record ConsType(String name, List<Type> args) implements Type {
+        }
+
+        record Void() implements Type {
+        }
+
+        record Tuple(List<Type> types) implements Type {
+
+        }
+
+        record Function(Type in, Type out) implements Type {
+        }
+
+        record Method(Type in, Function out) implements Type {
+        }
+      }
+
+      sealed interface Complex extends DataType permits Complex.TypeDef, Complex.NamedType {
+        record TypeDef(List<TypeCons> constraints, Type type) implements Complex {
+        }
+
+        record NamedType(String name, TypeDef type) implements Complex {
+        }
+      }
     }
 
     record Literal(String value) implements AST {
@@ -19,7 +47,7 @@ public interface AST {
     }
 
     interface Expression extends AST {
-      record Declaration(Literal name, Modifier visibility, Type type) implements Expression {
+      record Declaration(Literal name, Modifier visibility, DataType type) implements Expression {
       }
 
       record Block(List<Expression> expressions) implements Expression {
