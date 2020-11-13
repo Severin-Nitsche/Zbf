@@ -45,9 +45,6 @@ public interface Lexer {
     System.out.println(lex(
         """
                 List a -> Cons a, Nil :: {
-                \r
-                \r
-                
                 
                   append :: global a -> List a
                   prepend :: global a -> List a

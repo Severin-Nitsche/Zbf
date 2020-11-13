@@ -54,9 +54,6 @@ public interface AST {
       }
 
       interface Simple extends Expression {
-        record Assignment(Declaration leftHand, Simple rightHand) implements Simple {
-        }
-
         record Definition(Declaration leftHand, Expression rightHand) implements Simple {
         }
 
